@@ -78,6 +78,10 @@ class RunTypes(IntEnum):
                 c=pc(n)
         return c
 
+    def name(self):
+        return RunTypes.getName(self - 1)
+    
+    @staticmethod
     def getName(n):
         match(n):
             case 0:
@@ -98,8 +102,9 @@ class RunTypes(IntEnum):
                 raise RunTypeException('Impossible enumeration value')
         return name
 
-    def getNames():
-        return RunTypes.__members__.keys()
+    @classmethod
+    def getNames(cls):
+        return cls.__members__.keys()
 
     @staticmethod
     def isMolecular(rt):
@@ -192,7 +197,7 @@ class RunFlags:
         print_message('protMol: ',int(self.protMol>0),{1:'p-H2 cooling dominated H-H2 cooling',
                                                        'otherwise':'p-H2 cooling neglible'})
         print_message('h3p: ',int(self.h3p>0),{1:'H3p is dominant cation','otherwise':'H3p is ignorable'})
-        print_message('h2opacity: ',self.h2opacity[0],{1:'rot H2 line is opaque',
+        print_message('h2opacity: ',self.h2opacity[0][0],{1:'rot H2 line is opaque',
                                                          2:'vib H2 line is opaque',
                                                          3:'both H2 lines are opaque',
                                                          'otherwise':'transparent H2 lines'})
@@ -602,7 +607,7 @@ class RunData:
                     #abun{:,3:} = abun{:,3:} * repmat(ntot(mjind),1,width(self.data)-2)
                     #[~,comps] = computeLambda(self.data.Tgas(mjind),'m',self.params.dp_massG,self.params.de_massG*1e6,self.params.Dalpha,abun,self.params.xi)
                     #flags.coolType = comps(1).type
-                    flags.coolType = self.cool.columns[np.argmax(self.cool[mjind,:])]
+                    flags.coolType = self.cool.columns[np.argmax(self.cool.iloc[mjind,3:])+3]
 
                     flags.effCool = self.data.time[mjind]<10 * Gyrinsec
 
@@ -1042,7 +1047,7 @@ class RunData:
         if ax is None:
             plot = plt.figure()
             ax = plot.add_subplot()
-            ax.set_xlabel('n$_{tot}$')
+            ax.set_xlabel('n$_{tot}$ (cm$^{-3}$)')
             ax.set_ylabel('$n_?/n_{tot}$')
             ax.grid(which='both',alpha=0.3,axis='both')
             initialize = True

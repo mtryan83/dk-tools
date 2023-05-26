@@ -50,10 +50,10 @@ class RunOpts:
     xi:float = 0.01
 
     # internal fields
-    de_massG:float = field(init=False)
-    dp_massG:float = field(init=False)
-    m:float = field(init=False)
-    M:float = field(init=False)
+    de_massG:float = field(init=False,default=None)
+    dp_massG:float = field(init=False,default=None)
+    m:float = field(init=False,default=None)
+    M:float = field(init=False,default=None)
 
     # cosmo parameters
     krome_redshift:float = None
@@ -182,6 +182,22 @@ class RunOpts:
         with open(filename, 'w') as configfile:
             cf.write(configfile)
 
+    def diff(self,other):
+        if not isinstance(other,RunOpts):
+            raise RunOptsException("Diff can only be called on RunOpts objects")
+        sd = self.__dict__
+        od = other.__dict__
+        diff = {}
+        for k,v in sd.items():
+            if k not in od:
+                diff[k] = f'{v} vs [Missing]'
+            elif v!=od[k]:
+                diff[k] = f'{v} vs {od[k]}'
+        for k,v in od.items():
+            if k not in sd:
+                diff[k] = f'[Missing] vs {v}'
+        return diff
+            
     @staticmethod
     def loadOpts(filename,*,using_file=False,using_string=False):
         # Loading as pickle file - see saveOpts
