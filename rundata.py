@@ -70,12 +70,13 @@ class RunTypes(IntEnum):
         return 7
 
     def getColor(n):
-        pc=mpl.cm.get_cmap("viridis",6)
+        pc=mpl.colormaps["viridis"]
+        norm = mpl.colors.Normalize(vmin=0,vmax=6)
         match(n):
             case 0:
                 c=[0,0,0]
             case _:
-                c=pc(n)
+                c=pc(norm(n-1))
         return c
 
     def name(self):
@@ -560,6 +561,7 @@ class RunData:
                     coolStart = coolStart[0][0]
                     nstart = coolStart
                 T = T[coolStart:]
+                vprint(f'Starting from ntot[{nstart}]={ntot[nstart]:.4}, T={T[0]:.4}')
 
             # should use rho<1e-12 here
             #cool = find(ntot((nstart+1):)>1e10,1) # If this changes, need to change in getFlagDescription
@@ -581,8 +583,11 @@ class RunData:
 
             if T.size:
                 tempThresh = self.getTempThresholds()
-                if any(T<tempThresh.Vib):
-                    if any(T<tempThresh.Rot):
+                Tvibind = np.flatnonzero(T<tempThresh.Vib)
+                Trotind = np.flatnonzero(T<tempThresh.Rot)
+                nthresh = self.getDensityThresholds()
+                if len(Tvibind) and ntot[Tvibind[0]]<nthresh.Rov*1e2:
+                    if len(Trotind) and ntot[Trotind[0]]<nthresh.Ror*1e2:
                         flags.rovibCool = 2
                     else:
                         flags.rovibCool = 1
@@ -744,11 +749,11 @@ class RunData:
         Gyrinsec = 60 * 60 * 24 * 365 * 1e9
         ht = []
         if time[-1] > 10 * Gyrinsec:
-            ht[0] = ax.loglog(n[-2:-1],T[-2:-1],color=col,linestyle="dotted",linewidth=0.5)
-            ht[1] = ax.loglog(n[-1],T[-1],color=col,linestyle="none",marker="*",)
+            ht.append(ax.loglog(n[-2:-1],T[-2:-1],color=col,linestyle="dotted",linewidth=0.5))
+            ht.append(ax.loglog(n[-1],T[-1],color=col,linestyle="none",marker="*",))
         elif self.flags.equil:
-            ht[0] = ax.loglog(n[-2:-1],T[-2:-1],color=col,linestyle="dotted",linewidth=0.5)
-            ht[1] = ax.loglog(n[-1],T[-1],color=col,linestyle="none",marker="d")
+            ht.append(ax.loglog(n[-2:-1],T[-2:-1],color=col,linestyle="dotted",linewidth=0.5))
+            ht.append(ax.loglog(n[-1],T[-1],color=col,linestyle="none",marker="d"))
         if ht:
             h = [h,ht[0],ht[1]]
         if not includeIsobaric:
@@ -769,10 +774,10 @@ class RunData:
         tsound = self.data.tsound / Myrinsec + eps
         tc = self.data.tc / Myrinsec + eps
         h = []
-        h.append(plt.loglog(n,tff,label="t_{ff}"))
-        h.append(plt.loglog(n,tsound,label="t_{sound}"))
-        h.append(plt.loglog(n,tc,label="t_{cool}"))
-        plt.xlabel("n_{tot} (cm^{-3})")
+        h.append(plt.loglog(n,tff,label="$t_{ff}$"))
+        h.append(plt.loglog(n,tsound,label="$t_{sound}$"))
+        h.append(plt.loglog(n,tc,label="$t_{cool}$"))
+        plt.xlabel("$n_{tot}$ $(cm^{-3})$")
         plt.ylabel("Time Scale (Myr)")
         plt.legend()
         plt.grid()
