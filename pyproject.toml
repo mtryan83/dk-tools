@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dk-tools"
+dynamic = ["version"]
+authors = [
+  { name="Michael Ryan", email="mryan4@uci.edu" },
+]
+description = "Tools for generating and analyzing DARKKROME runs"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "collections",
+    "configparser",
+    "dataclasses",
+    "enum",
+    "itertools",
+    "logging",
+    "matplotlib",
+    "multiprocessing",
+    "numpy",
+    "pandas",
+    "pathlib",
+    "subprocess",
+    "zipfile",
+]
+
+[project.urls]
+Homepage = "https://github.com/mtryan83/dk-tools"
+Issues = "https://github.com/mtryan83/dk-tools/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "dk_tools.__version__" }
+
+[tool.setuptools.packages.find]
+include=["dk_tools"]

@@ -13,8 +13,8 @@ from zipfile import Path as zipPath
 import os,io
 import logging
 
-from runopts import RunOpts
-from virial import Virial
+from dk_tools.runopts import RunOpts
+from dk_tools.virial import Virial
 
 
 def flatten_list(deep_list: list[list[object]]):
@@ -851,7 +851,7 @@ class RunData:
         data,ind = self.processInd(mask)
         n = data.ntot.to_numpy()
         T = data.Tgas.to_numpy()
-        lgT = np.log10(T)
+        lgT = np.log10(np.maximum(T,1e-40))
 
         # Need to find the global minimum in range [n_0, min(n_opacity,n_LTE,n_f)]
         # where n_opacity and n_LTE are the relevant limits for the current process
@@ -1043,7 +1043,8 @@ class RunData:
         n = self.data.ntot[mjind]
         T = self.data.Tgas[mjind]
         ax.plot(n,T,marker='o')
-        ax.text(2*n,T,f'$M_{{min}}$={signif(mjeans/self.opts.M_sun,2):g} $M_{{\odot}}$',fontsize=6)
+        ax.text(2*n,T,f'$M_{{min}}$={signif(mjeans/self.opts.M_sun,2):g} $M_{{\odot}}$',
+                fontsize=6,clip_on=True,)
 
         return ax
 
@@ -1062,8 +1063,6 @@ class RunData:
         x = self.data.ntot
         h = ax.loglog(x,self.data[specs],linestyle='dashdot',linewidth=2,label=specs);
         ax.legend(ncols=2)
-        #ylim([1e-11 5]);
-        #xlim(xl);
         return (ax,h if initialize else h)
 
 

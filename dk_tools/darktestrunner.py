@@ -9,9 +9,9 @@ from itertools import product,repeat
 import numpy as np
 from dataclasses import replace
 
-from runopts import RunOpts
-from virial import Virial
-from rundata import RunData
+from dk_tools.runopts import RunOpts
+from dk_tools.virial import Virial
+from dk_tools.rundata import RunData
 
 
 def doSingleRun(opts:RunOpts,Tvar,Ttype,z,epsilon):
